@@ -1,0 +1,10 @@
+{
+    "dir.dict": {
+        "csv": [],
+        "xml": [],
+        "ex": ["/Users/hiank/code/workspace/angel_trans/lang_dict"]
+    },
+    
+    "dir.dst": "/Users/hiank/code/workspace/angel_trans/lang/",
+    "dir.src": "/Users/hiank/code/workspace/cocos2dx-2.2.6/projects/ShenXian_auto/Resources/lang/"
+}

@@ -12,10 +12,13 @@ type DirInfo struct {
     _focus      int
     _fileCnt    int
     _fileArr    []string
+    
+    
+    _filter     Filter
 }
 
-
-func (info *DirInfo) InitDir(root string) error {
+// InitDir used to initialize the DirInfo 
+func (info *DirInfo) InitDir(root string, filter Filter) error {
     
     *info = DirInfo {
         _focus:     0,
@@ -26,6 +29,7 @@ func (info *DirInfo) InitDir(root string) error {
         root += "/"
     }
     
+    info._filter = filter
     err := filepath.Walk(root, info.handleWalk)
     if err != nil {
         
@@ -35,9 +39,10 @@ func (info *DirInfo) InitDir(root string) error {
     return err
 }
 
+// NextFile used to pop next file name
 func (info *DirInfo) NextFile() *string {
     
-    var name *string = nil
+    var name *string
     if info._focus < info._fileCnt {
         
         name = &info._fileArr[info._focus]
@@ -72,6 +77,10 @@ func (info *DirInfo) handleWalk(path string, file os.FileInfo, err error) error 
 
 func (info *DirInfo) addFile(path string) {
     
+    if info._filter != nil && !info._filter.Match(path) {
+        return
+    }
+    
     if len(info._fileArr) == info._fileCnt {
         
         info._fileArr = append(info._fileArr, make([]string, 10)...)
@@ -80,3 +89,6 @@ func (info *DirInfo) addFile(path string) {
     info._fileArr[info._fileCnt] = path
     info._fileCnt++
 }
+
+
+

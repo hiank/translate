@@ -110,3 +110,4 @@ func (f *TFile) SaveFile(opt func (line *string), dstName string) {
 	}
 	w.Flush()
 }
+

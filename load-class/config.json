@@ -1,0 +1,10 @@
+{
+    "dir.dict": {
+        "csv": [],
+        "xml": ["/Users/hiank/code/workspace/god_trans/xml_dict"],
+        "ex": ["/Users/hiank/code/workspace/god_trans/xml_dict"]
+    },
+    
+    "dir.dst": "/Users/hiank/code/workspace/god_trans/lang/",
+    "dir.src": "/Volumes/data_mac/local_svn/root/god_tw_local/Resources/lang/"
+}
