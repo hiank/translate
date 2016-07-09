@@ -1,0 +1,16 @@
+{
+    "dir.dict": {
+        "csv": [],
+        "xml": [],
+        "xlsx": [],
+        "ex": ["/Users/hiank/code/workspace/translate/fantasy_tw/ex/"]
+    },
+    
+    "dir.dst": "/Users/hiank/code/workspace/translate/fantasy_tw/config/",
+    "dir.src": "/Users/hiank/code/workspace/cocos2dx-2.2.6/projects/fantasy_tw/Resources/config/",
+
+    "dict.ignore": {
+        "ignore": false,
+        "array": []
+    }
+}
