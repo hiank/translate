@@ -13,8 +13,8 @@ import (
 // RoutXML realize FileFilter and Routine interface
 type RoutXML struct {
 	Dict core.Dict
-	// T       *tool.TFile
-	T *tool.Data
+
+	// T *tool.Data
 }
 
 // Match is the function realize for FileFilter interface
@@ -31,13 +31,13 @@ func (r *RoutXML) Match(name string) bool {
 }
 
 // Filter is the function realize for Routine interface
-func (r *RoutXML) Filter() tool.Filter {
+func (r *RoutXML) Filter() core.Filter {
 
 	return r
 }
 
 // Run is the function realize for Routine interface
-func (r *RoutXML) Run(path string) tool.RoutineChan {
+func (r *RoutXML) Run(path string) core.RoutineChan {
 
 	content, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -53,14 +53,21 @@ func (r *RoutXML) Run(path string) tool.RoutineChan {
 		return r
 	}
 
-	r.T = data
-	return r
+	// r.T = data
+	return data
 }
 
 // End is the function realize for Routine interface
-func (r *RoutXML) End(ch tool.RoutineChan) {
+func (r *RoutXML) End(ch core.RoutineChan) {
 
-	data := r.T
+	var data *tool.Data
+	var ok bool
+	if data, ok = ch.(*tool.Data); !ok {
+
+		fmt.Println("dict-xml.go chan error")
+		return
+	}
+
 	if data == nil {
 		fmt.Println("there's no xml dictionary found")
 		return
@@ -81,6 +88,6 @@ func LoadXML(dict core.Dict, path string) {
 	r := new(RoutXML)
 	r.Dict = dict
 
-	tool.RoutineLoadDir(r, path)
+	core.RoutineLoadDir(r, path)
 
 }

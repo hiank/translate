@@ -18,8 +18,7 @@ type EXData struct {
 // RoutEx used to
 type RoutEx struct {
 	Dict core.Dict
-	T    *EXData
-	// T       *tool.TFile
+	// T    *EXData
 }
 
 // Match is the function realize for FileFilter interface
@@ -36,7 +35,7 @@ func (r *RoutEx) Match(name string) bool {
 }
 
 // Filter is the function realize for Routine interface
-func (r *RoutEx) Filter() tool.Filter {
+func (r *RoutEx) Filter() core.Filter {
 
 	return r
 }
@@ -51,8 +50,21 @@ L:
 			break L
 		}
 
-		lineArr := strings.Split(*lineStr, ",")
-		// lineArr := make([]string, num)
+		// lineArr := strings.Split(*lineStr, ",")
+		locked := false
+		lineArr := strings.FieldsFunc(*lineStr, func(ru rune) bool {
+			rlt := false
+			switch ru {
+			case ',':
+				if !locked {
+					rlt = true
+				}
+			case '"':
+				locked = !locked
+			}
+			return rlt
+		})
+
 		if len(lineArr) != 2 {
 			fmt.Printf("dict-ex.go error #%v#\n", len(lineArr))
 			continue
@@ -70,13 +82,13 @@ L:
 			continue
 		}
 
-		m[keyInt] = lineArr[1]
+		m[keyInt] = strings.Trim(lineArr[1], "\"")
 	}
 	return m
 }
 
 // Run used to
-func (r *RoutEx) Run(path string) tool.RoutineChan {
+func (r *RoutEx) Run(path string) core.RoutineChan {
 
 	tmp := []rune(path)
 	fileR := string(tmp[0:len(path)-len(".left")]) + ".right"
@@ -91,14 +103,21 @@ func (r *RoutEx) Run(path string) tool.RoutineChan {
 	t = tool.NewTFile(path)
 	d._mapL = r.loadMap(t)
 
-	r.T = d
-	return r
+	// r.T = d
+	return d
 }
 
 // End used to
-func (r *RoutEx) End(ch tool.RoutineChan) {
+func (r *RoutEx) End(ch core.RoutineChan) {
 
-	data := r.T
+	var data *EXData
+	var ok bool
+	if data, ok = ch.(*EXData); !ok {
+
+		fmt.Println("dict-ex.go chan error")
+		return
+	}
+	// data := r.T
 	if data == nil || data._mapL == nil || data._mapR == nil {
 		return
 	}
@@ -122,5 +141,5 @@ func LoadEx(dict core.Dict, path string) {
 	r := new(RoutEx)
 	r.Dict = dict
 
-	tool.RoutineLoadDir(r, path)
+	core.RoutineLoadDir(r, path)
 }

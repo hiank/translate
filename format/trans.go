@@ -4,22 +4,13 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 
 	"hiank.net/translate/core"
 	"hiank.net/translate/tool"
 	// "strconv"
 )
-
-func parseDir(path string) {
-
-	dirName := string(path[0:strings.LastIndex(path, "/")])
-
-	if _, e := os.Stat(dirName); e != nil {
-
-		os.MkdirAll(dirName, 0755)
-	}
-}
 
 // SaveNilToCSV used to save key not content value to csv format
 func SaveNilToCSV(nilArr []string, path string) {
@@ -34,18 +25,28 @@ func SaveNilToCSV(nilArr []string, path string) {
 	defer file.Close()
 
 	w := bufio.NewWriter(file)
-	// i := 0
+	i := 0
 	// nilArr := s.GetNilArr()
 	for _, k := range nilArr {
 
-		// w.WriteString(strconv.Itoa(i))
-		// w.WriteByte(',')
+		w.WriteString(strconv.Itoa(i))
+		w.WriteByte(',')
 		w.WriteString(k)
 		w.WriteByte('\n')
 
-		// i++
+		i++
 	}
 	w.Flush()
+}
+
+func parseDir(path string) {
+
+	dirName := string(path[0:strings.LastIndex(path, "/")])
+
+	if _, e := os.Stat(dirName); e != nil {
+
+		os.MkdirAll(dirName, 0755)
+	}
 }
 
 func matchF(c rune) bool {
@@ -74,13 +75,13 @@ type Rout struct {
 }
 
 // Filter used to filter the file
-func (r *Rout) Filter() tool.Filter {
+func (r *Rout) Filter() core.Filter {
 
 	return nil
 }
 
 // Run operate file
-func (r *Rout) Run(path string) tool.RoutineChan {
+func (r *Rout) Run(path string) core.RoutineChan {
 
 	tmp := []rune(path)
 	dstPath := r.Cfg.DstDir + string(tmp[len(r.Cfg.SrcDir):len(path)])
@@ -93,7 +94,7 @@ func (r *Rout) Run(path string) tool.RoutineChan {
 }
 
 // End work after operate file end
-func (r *Rout) End(ch tool.RoutineChan) {
+func (r *Rout) End(ch core.RoutineChan) {
 
 	// r.T.AddNil((map[string]int)ch)
 	switch c := ch.(type) {
@@ -103,4 +104,51 @@ func (r *Rout) End(ch tool.RoutineChan) {
 	default:
 		fmt.Printf("type error %v\n", c)
 	}
+}
+
+// Format used to
+func Format(t core.Trans, d core.Dict, cfg *tool.Config) {
+
+	rout := new(Rout)
+	rout.Cfg = cfg
+	rout.T = t
+	rout.D = d
+
+	core.RoutineLoadDir(rout, cfg.SrcDir)
+
+}
+
+func openFiles(dstPath string, srcPath string) (dfile *os.File, sfile *os.File, err error) {
+
+	sfile, err = os.OpenFile(srcPath, os.O_RDONLY, 0444)
+	if err != nil {
+
+		fmt.Println("open file err : " + err.Error())
+		return
+	}
+	defer func() {
+		if err != nil {
+			sfile.Close()
+		}
+	}()
+	// defer sfile.Close()
+
+	dirName := string(dstPath[0:strings.LastIndex(dstPath, "/")])
+	if _, e := os.Stat(dirName); e != nil {
+
+		os.MkdirAll(dirName, 0755)
+	}
+	dfile, err = os.OpenFile(dstPath, os.O_WRONLY|os.O_CREATE, 0666)
+	if err != nil {
+
+		fmt.Println("create or open file err : " + err.Error())
+		return
+	}
+	defer func() {
+		if err != nil {
+			dfile.Close()
+		}
+	}()
+
+	return
 }

@@ -1,14 +1,14 @@
 package trans
 
 import (
+	"bufio"
+	"bytes"
+
 	"hiank.net/translate/core"
 	// "strings"
 	"encoding/xml"
 	"fmt"
-	"os"
 	"strings"
-
-	"hiank.net/translate/tool"
 )
 
 // CCBTrans used to translate ccb file
@@ -42,29 +42,39 @@ func (t *CCBTrans) Format(dstPath string, srcPath string, dict core.Dict) map[st
 		return nil
 	}
 
-	sfile, err := os.OpenFile(srcPath, os.O_RDONLY, 0444)
-	if err != nil {
+	// sfile, err := os.OpenFile(srcPath, os.O_RDONLY, 0444)
+	// if err != nil {
 
-		fmt.Println("open file err : " + err.Error())
+	// 	fmt.Println("open file err : " + err.Error())
+	// 	return nil
+	// }
+	// defer sfile.Close()
+
+	// dirName := string(dstPath[0:strings.LastIndex(dstPath, "/")])
+	// if _, e := os.Stat(dirName); e != nil {
+
+	// 	os.MkdirAll(dirName, 0755)
+	// }
+	// dfile, err := os.OpenFile(dstPath, os.O_WRONLY|os.O_CREATE, 0666)
+	// if err != nil {
+
+	// 	fmt.Println("create or open file err : " + err.Error())
+	// 	return nil
+	// }
+	// defer dfile.Close()
+	dfile, sfile, err := openFiles(dstPath, srcPath)
+	if err != nil {
 		return nil
 	}
-	defer sfile.Close()
-
-	dirName := string(dstPath[0:strings.LastIndex(dstPath, "/")])
-	if _, e := os.Stat(dirName); e != nil {
-
-		os.MkdirAll(dirName, 0755)
-	}
-	dfile, err := os.OpenFile(dstPath, os.O_WRONLY|os.O_CREATE, 0666)
-	if err != nil {
-
-		fmt.Println("create or open file err : " + err.Error())
-		return nil
-	}
-	defer dfile.Close()
+	defer func() {
+		dfile.Close()
+		sfile.Close()
+	}()
 
 	decoder := xml.NewDecoder(sfile)
-	encoder := xml.NewEncoder(dfile)
+
+	var buf bytes.Buffer
+	encoder := xml.NewEncoder(&buf)
 
 	nilMap := format(encoder, decoder, dict)
 	// for k := range nilMap {
@@ -76,6 +86,11 @@ func (t *CCBTrans) Format(dstPath string, srcPath string, dict core.Dict) map[st
 	// }
 
 	encoder.Flush()
+	w := bufio.NewWriter(dfile)
+	co := strings.Replace(string(buf.Bytes()), "&#x9;", "\t", -1)
+	w.WriteString(co)
+
+	w.Flush()
 	return nilMap
 }
 
@@ -94,7 +109,7 @@ func format(encoder *xml.Encoder, decoder *xml.Decoder, d core.Dict) (nilMap map
 
 		case xml.StartElement:
 			focus = tmp.Name.Local == "string"
-			fmt.Printf("token show : %v\n", tmp.Name.Space)
+			// fmt.Printf("token show : %v\n", tmp.Name.Space)
 
 		// case xml.EndElement:
 		case xml.CharData:
@@ -154,17 +169,4 @@ func (t *CCBTrans) GetNilArr(ignoreArr []string) []string {
 		i++
 	}
 	return arr
-}
-
-// FormatCCB used to
-func FormatCCB(t core.Trans, d core.Dict, cfg *tool.Config) {
-
-	// rout := new(Rout)
-	// rout.Cfg = cfg
-	// rout.T = t
-	// rout.D = d
-
-	// tool.RoutineLoadDir(rout, cfg.SrcDir)
-
-	t.Format("/Users/hiank/code/workspace/translate/angel_en/ccb/AlchemyCell.ccb", "/Users/hiank/code/workspace/cocos2dx-2.2.6/projects/shenxian_auto_en/builderProject/ShenxianBuilder/Resources/ccb/AlchemyCell.ccb", d)
 }

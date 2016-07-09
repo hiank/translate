@@ -15,13 +15,13 @@ type Rout struct {
 }
 
 // Filter used to
-func (r *Rout) Filter() tool.Filter {
+func (r *Rout) Filter() core.Filter {
 
 	return nil
 }
 
 // Run used to
-func (r *Rout) Run(path string) tool.RoutineChan {
+func (r *Rout) Run(path string) core.RoutineChan {
 
 	t := tool.NewTFile(path)
 	// r.T = t
@@ -30,7 +30,7 @@ func (r *Rout) Run(path string) tool.RoutineChan {
 }
 
 // End used to
-func (r *Rout) End(ch tool.RoutineChan) {
+func (r *Rout) End(ch core.RoutineChan) {
 
 	var t *tool.TFile
 	var ok bool
@@ -110,6 +110,6 @@ func LoadCSV(dict core.Dict, path string) {
 	r := new(Rout)
 	r.Dict = dict
 
-	tool.RoutineLoadDir(r, path)
+	core.RoutineLoadDir(r, path)
 
 }

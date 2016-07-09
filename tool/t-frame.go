@@ -31,11 +31,6 @@ type Data struct {
 	Data []Item `xml:"Item"`
 }
 
-// Filter used to check up if the file name  match condition
-type Filter interface {
-	Match(s string) bool
-}
-
 // File used to operate the file
 type File interface {
 }
@@ -63,15 +58,3 @@ type File interface {
 //     AddLine(line string)
 //     AddNilItem(key string)
 // }
-
-// Routine used to operate
-type Routine interface {
-	Filter() Filter
-
-	Run(path string) RoutineChan
-	End(RoutineChan)
-}
-
-// RoutineChan used to
-type RoutineChan interface {
-}
